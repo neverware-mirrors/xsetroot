@@ -73,23 +73,23 @@ static Pixmap ReadBitmapFile(char *filename, unsigned int *width, unsigned int *
 static void
 usage(void)
 {
-    fprintf(stderr, "usage: %s [options]\n%s\n", program_name,
+    fprintf(stderr, "Usage: %s [options]\n%s\n", program_name,
             "  where options are:\n"
-            "  -display <display>   or   -d <display>\n"
-            "  -fg <color>   or   -foreground <color>\n"
-            "  -bg <color>   or   -background <color>\n"
-            "  -rv   or   -reverse\n"
-            "  -def   or   -default\n"
-            "  -name <string>\n"
-            "  -cursor <cursor file> <mask file>\n"
-            "  -cursor_name <cursor-font name>\n"
-            "  -xcf <ARGB cursor file> <cursor size>\n"
-            "  -solid <color>\n"
-            "  -gray   or   -grey\n"
-            "  -bitmap <filename>\n"
-            "  -mod <x> <y>\n"
-            "  -help\n"
-            "  -version\n"
+            "  -help                           Print this help\n"
+            "  -version                        Print a version message\n"
+            "  -def, -default                  Reset unspecified attributes\n"
+            "  -cursor <cursorfile> <maskfile> Pointer cursor used when outside of any windows\n"
+            "  -cursor_name <cursorfontname>   Use a pointer cursor from the cursor font\n"
+            "  -xcf <cursorfile> <cursorsize>  Load a pointer cursor from an Xcursor file\n"
+            "  -bitmap <filename>              Use the bitmap specified in the file\n"
+            "  -mod <x> <y>                    Use a plaid-like grid pattern on screen\n"
+            "  -gray, -grey                    Make the entire background grey\n"
+            "  -bg,  -background <color>       Set background color\n"
+            "  -fg,  -foreground <color>       Set foreground color\n"
+            "  -rv,  -reverse                  Swap foreground and background colors\n"
+            "  -solid <color>                  Set the background of the root window\n"
+            "  -name <string>                  Set the name of the root window\n"
+            "  -d,   -display <display>        Specifies the server to connect to\n"
             );
     exit(1);
     /*NOTREACHED*/
