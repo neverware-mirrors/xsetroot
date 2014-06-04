@@ -59,7 +59,6 @@ static int save_colors = 0;
 static int unsave_past = 0;
 static Pixmap save_pixmap = (Pixmap)None;
 
-static void usage(void) _X_NORETURN;
 static void FixupState(void);
 static void SetBackgroundToBitmap(Pixmap bitmap, 
 				  unsigned int width, unsigned int height);
@@ -70,9 +69,12 @@ static XColor NameToXColor(char *name, unsigned long pixel);
 static unsigned long NameToPixel(char *name, unsigned long pixel);
 static Pixmap ReadBitmapFile(char *filename, unsigned int *width, unsigned int *height, int *x_hot, int *y_hot);
 
-static void
-usage(void)
+static void _X_NORETURN _X_COLD
+usage(const char *errmsg)
 {
+    if (errmsg != NULL)
+	fprintf (stderr, "%s: %s\n\n", program_name, errmsg);
+
     fprintf(stderr, "Usage: %s [options]\n%s\n", program_name,
             "  where options are:\n"
             "  -help                           Print this help\n"
@@ -123,12 +125,12 @@ main(int argc, char *argv[])
 
     for (i = 1; i < argc; i++) {
 	if (!strcmp ("-display", argv[i]) || !strcmp ("-d", argv[i])) {
-	    if (++i>=argc) usage ();
+	    if (++i>=argc) usage ("-display requires an argument");
 	    display_name = argv[i];
 	    continue;
 	}
 	if (!strcmp("-help", argv[i])) {
-	    usage();
+	    usage(NULL);
 	}
 	if (!strcmp("-version", argv[i])) {
             printf("%s\n", PACKAGE_STRING);
@@ -139,29 +141,33 @@ main(int argc, char *argv[])
 	    continue;
 	}
 	if (!strcmp("-name", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-name requires an argument");
 	    name = argv[i];
 	    nonexcl++;
 	    continue;
 	}
 	if (!strcmp("-cursor", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc)
+		usage("missing cursorfile & maskfile arguments for -cursor");
 	    cursor_file = argv[i];
-	    if (++i>=argc) usage();
+	    if (++i>=argc)
+		usage("missing maskfile argument for -cursor");
 	    cursor_mask = argv[i];
 	    nonexcl++;
 	    continue;
 	}
 	if (!strcmp("-cursor_name", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-cursor_name requires an argument");
 	    cursor_name = argv[i];
 	    nonexcl++;
 	    continue;
 	}
 	if (!strcmp("-xcf", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc)
+		usage("missing cursorfile & cursorsize arguments for -xcf");
 	    xcf = argv[i];
-	    if (++i>=argc) usage();
+	    if (++i>=argc)
+		usage("missing cursorsize argument for -xcf");
 	    xcf_size = atoi(argv[i]);
 	    if (xcf_size <= 0)
 		xcf_size = 32;
@@ -169,17 +175,17 @@ main(int argc, char *argv[])
 	    continue;
 	}
 	if (!strcmp("-fg",argv[i]) || !strcmp("-foreground",argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-foreground requires an argument");
 	    fore_color = argv[i];
 	    continue;
 	}
 	if (!strcmp("-bg",argv[i]) || !strcmp("-background",argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-background requires an argument");
 	    back_color = argv[i];
 	    continue;
 	}
 	if (!strcmp("-solid", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-solid requires an argument");
 	    solid_color = argv[i];
 	    excl++;
 	    continue;
@@ -190,16 +196,16 @@ main(int argc, char *argv[])
 	    continue;
 	}
 	if (!strcmp("-bitmap", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("-bitmap requires an argument");
 	    bitmap_file = argv[i];
 	    excl++;
 	    continue;
 	}
 	if (!strcmp("-mod", argv[i])) {
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("missing x & y arguments for -mod");
 	    mod_x = atoi(argv[i]);
 	    if (mod_x <= 0) mod_x = 1;
-	    if (++i>=argc) usage();
+	    if (++i>=argc) usage("missing y argument for -mod");
 	    mod_y = atoi(argv[i]);
 	    if (mod_y <= 0) mod_y = 1;
 	    excl++;
@@ -209,14 +215,16 @@ main(int argc, char *argv[])
 	    reverse = 1;
 	    continue;
 	}
-	usage();
+	fprintf(stderr, "%s: unrecognized argument '%s'\n",
+		program_name, argv[i]);
+	usage(NULL);
     } 
 
     /* Check for multiple use of exclusive options */
     if (excl > 1) {
 	fprintf(stderr, "%s: choose only one of {solid, gray, bitmap, mod}\n",
 		program_name);
-	usage();
+	usage(NULL);
     }
 
     dpy = XOpenDisplay(display_name);
