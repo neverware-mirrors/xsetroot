@@ -331,10 +331,13 @@ FixupState(void)
 	return;
     prop = XInternAtom(dpy, "_XSETROOT_ID", False);
     if (unsave_past) {    
-	(void)XGetWindowProperty(dpy, root, prop, 0L, 1L, True, AnyPropertyType,
-				 &type, &format, &length, &after, &data);
-	if ((type == XA_PIXMAP) && (format == 32) &&
-	    (length == 1) && (after == 0))
+	if (XGetWindowProperty(dpy, root, prop, 0L, 1L, True, AnyPropertyType,
+		       &type, &format, &length, &after, &data) != Success)
+	    fprintf(stderr,
+		    "%s: warning: cannot get _XSETROOT_ID property from root window\n",
+		    program_name);
+	else if ((type == XA_PIXMAP) && (format == 32) &&
+		 (length == 1) && (after == 0))
 	    XKillClient(dpy, *((Pixmap *)data));
 	else if (type != None)
 	    fprintf(stderr, "%s: warning: _XSETROOT_ID property is garbage\n",
